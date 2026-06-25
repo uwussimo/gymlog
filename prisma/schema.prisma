@@ -1,0 +1,77 @@
+// Prisma schema for gymlog — personal life companion
+// docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+/// One 15-minute slot in the day. The grid is built from these.
+/// Consecutive slots that share the same `activity` are merged into a
+/// single visual block in the UI (matching the spreadsheet workflow).
+model Sprint {
+  id        String   @id @default(cuid())
+  /// Start of the 15-minute slot, stored as UTC. Unique per slot.
+  startAt   DateTime @unique
+  activity  String?
+  note      String?
+  /// Color key (e.g. "blue", "green") for the block.
+  color     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([startAt])
+}
+
+/// A logged food item with AI-estimated nutrition.
+model Food {
+  id          String   @id @default(cuid())
+  eatenAt     DateTime @default(now())
+  description String
+  /// "text" | "photo"
+  source      String   @default("text")
+  /// Stored image (data URL or path) when logged from a photo.
+  imageUrl    String?
+  calories    Int
+  protein     Float?
+  carbs       Float?
+  fat         Float?
+  /// AI's short confidence / assumptions note.
+  aiNote      String?
+  createdAt   DateTime @default(now())
+
+  @@index([eatenAt])
+}
+
+/// A workout session — used for the GitHub-style yearly heatmap.
+model Workout {
+  id          String   @id @default(cuid())
+  performedAt DateTime @default(now())
+  type        String   @default("workout")
+  durationMin Int?
+  note        String?
+  /// Perceived intensity 1-4, drives heatmap color depth.
+  intensity   Int      @default(1)
+  createdAt   DateTime @default(now())
+
+  @@index([performedAt])
+}
+
+/// Daily health metrics. In a PWA these are entered manually or imported
+/// from an Apple Health export; a future native wrapper can auto-fill them.
+model HealthMetric {
+  id        String   @id @default(cuid())
+  /// Midnight (local) of the day these metrics belong to. One row per day.
+  day       DateTime @unique
+  steps     Int?
+  sleepMin  Int?
+  restingHr Int?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([day])
+}

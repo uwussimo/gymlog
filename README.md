@@ -1,37 +1,48 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# gymlog — your life companion
 
-## Getting Started
+A personal PWA to take control of your time, food, training and health. Built around the **15-minute sprint** logging workflow (the spreadsheet, but smarter).
 
-First, run the development server:
+## Features
+
+- **⏱ 15-minute sprints** — a daily grid from 6:00. Click a slot or **drag across several** to log what you did. Adjacent slots with the same text **merge into one block** showing the total time (just like the Google Sheet), color-coded, with a live per-activity breakdown and a "Continue previous" shortcut.
+- **🍽 Food + AI calories** — describe a meal or **snap a photo**; OpenAI estimates calories + macros, which you can edit before saving. Daily totals and history.
+- **💪 Workouts** — quick-log sessions and see a **GitHub-style yearly heatmap**, current streak and active days.
+- **📊 Health** — Screen-Time-style daily bar charts (with average line) for **calorie intake, steps and sleep**. Manual entry plus **Apple Health export import** (steps & sleep from `export.xml`).
+- **📱 Installable PWA** — add to your home screen.
+
+## Stack
+
+Next.js 16 (App Router) · Prisma 7 (SQLite) · shadcn/ui + Tailwind v4 · TanStack React Query · OpenAI · Recharts.
+
+## Setup
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+npx prisma migrate dev   # creates ./dev.db
+npm run dev              # http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Add your OpenAI key to `.env` to enable photo/text calorie estimation:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```
+OPENAI_API_KEY="sk-..."
+OPENAI_MODEL="gpt-4o"     # any vision-capable model you have access to
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Without a key the app still works — you just enter calories manually.
 
-## Learn More
+## Notes
 
-To learn more about Next.js, take a look at the following resources:
+- **Apple Health**: a browser/PWA cannot read HealthKit directly. Steps & sleep come from manual entry or by importing your Apple Health export (`Health app → profile → Export All Health Data`, unzip, upload `export.xml` on the Health tab). The data model is ready for a future native wrapper to auto-fill these.
+- **Database**: SQLite for zero-setup. To move to Postgres, change `datasource.provider` in `prisma/schema.prisma`, swap the adapter in `src/lib/prisma.ts` (`@prisma/adapter-pg`), set `DATABASE_URL`, and re-run `prisma migrate dev`.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Project layout
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
-# gymlog
+```
+src/
+  app/            routes + API handlers (sprints, food, workouts, health)
+  components/     sprint grid/editor, dashboards, heatmap, charts, nav
+  hooks/          React Query hooks per feature
+  lib/            prisma, openai, time/colors/image helpers
+prisma/           schema + migrations
+```
