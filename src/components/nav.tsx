@@ -49,7 +49,7 @@ export function Nav() {
       </header>
 
       {/* Mobile bottom tab bar */}
-      <nav className="fixed inset-x-0 bottom-0 z-30 border-t bg-background/90 backdrop-blur md:hidden">
+      <nav className="fixed inset-x-0 bottom-0 z-30 border-t bg-background/90 pb-[env(safe-area-inset-bottom)] backdrop-blur md:hidden">
         <div className="mx-auto grid max-w-md grid-cols-4">
           {links.map((l) => {
             const active = l.match(pathname);
@@ -59,11 +59,11 @@ export function Nav() {
                 key={l.href}
                 href={l.href}
                 className={cn(
-                  "flex flex-col items-center gap-0.5 py-2 text-[11px] font-medium transition-colors",
+                  "flex min-h-14 flex-col items-center justify-center gap-1 text-[11px] font-medium transition-colors active:bg-muted/60",
                   active ? "text-foreground" : "text-muted-foreground",
                 )}
               >
-                <Icon className={cn("size-5", active && "text-primary")} />
+                <Icon className={cn("size-[22px]", active && "text-primary")} />
                 {l.label}
               </Link>
             );

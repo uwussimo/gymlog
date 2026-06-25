@@ -170,6 +170,12 @@ export function SprintGrid({
     moved.current = true;
     setFocus(i);
   }
+  // Touch scroll (pan) cancels the gesture so we don't open the editor mid-scroll.
+  function onCancel() {
+    dragging.current = false;
+    setAnchor(null);
+    setFocus(null);
+  }
 
   async function handleSave(v: {
     activity: string;
@@ -245,8 +251,9 @@ export function SprintGrid({
                   key={i}
                   onPointerDown={() => onDown(i)}
                   onPointerEnter={() => onEnter(i)}
+                  onPointerCancel={onCancel}
                   className={cn(
-                    "absolute inset-x-0 cursor-pointer border-b border-border/40",
+                    "absolute inset-x-0 cursor-pointer touch-pan-y border-b border-border/40",
                     !filled && "hover:bg-muted/60",
                   )}
                   style={{ top: i * ROW_H, height: ROW_H }}
